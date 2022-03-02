@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Post;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -13,7 +15,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        return Post::all();
     }
 
     /**
@@ -23,7 +25,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts/create');
     }
 
     /**
@@ -33,8 +35,25 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        //
+    { {
+            $this->validate(
+                $request,
+                [
+                    'title' => 'required|max:50|string',
+                    'body' => 'required|string',
+                ]
+            );
+
+            $post = new Post;
+
+            $post->title = $request->title;
+            $post->body = $request->body;
+            $post->slug = Str::slug($request->title);
+            $post->id_user = 1;
+
+            if (!$post->save()) return;
+            return redirect('/posts');
+        }
     }
 
     /**
