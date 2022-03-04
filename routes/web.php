@@ -22,10 +22,13 @@ Route::get('/', function () {
 
 Route::resource('users', UserController::class);
 Route::resource('posts', PostController::class);
+Route::get('posts/show/{id}', [PostController::class, 'show_by_id']);
 Route::resource('comments', CommentController::class);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
+
+// Route::resource('posts', PostController::class)->middleware(['auth']);
 
 require __DIR__ . '/auth.php';

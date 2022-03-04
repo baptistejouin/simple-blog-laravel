@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => ['index', 'show']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +20,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        return Post::all();
+        $posts = Post::where('id_user', 1)->orderBy('created_at', 'desc');
+        $posts = Post::orderBy('created_at', 'desc')->paginate(6);
+        return view('home')->with('posts', $posts);
     }
 
     /**
@@ -49,7 +56,7 @@ class PostController extends Controller
             $post->title = $request->title;
             $post->body = $request->body;
             $post->slug = Str::slug($request->title);
-            $post->id_user = 1;
+            $post->id_user = Auth::user()->id;;
 
             if (!$post->save()) return;
             return redirect('/posts');
@@ -59,12 +66,25 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  string  $slug
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($slug)
     {
-        //
+        $post = Post::where('slug', $slug)->first();
+        // TODO: handle NotFound
+        if (!$post) return redirect('/posts');
+        return view('posts/post')->with('post', $post);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     */
+    public function show_by_id($id)
+    {
+        return  Post::where('id', $id)->first();
     }
 
     /**
